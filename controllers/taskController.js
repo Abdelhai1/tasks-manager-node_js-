@@ -1,8 +1,10 @@
 const db = require('../models')
 
 // model
+const User = db.users
 const Task = db.tasks
 const Step = db.steps
+const UserTask = db.userTask
 // functions
 
 const { sequelize } = require('../models'); // Import the Sequelize instance
@@ -123,7 +125,59 @@ const addStep = async (req, res) => {
     }
 }
 
+// 5.get task steps
 
+const getTaskSteps = async (req, res) => {
+
+    try {
+        const task_id = req.params.id
+        const query = 'SELECT * FROM steps where task_id=:task_id';
+        const steps = await sequelize.query(query, {
+            type: sequelize.QueryTypes.SELECT,
+            replacements: { task_id: task_id },
+        });
+
+        res.status(200).send(steps);
+        console.log(steps)
+    } catch (error) {
+        console.error('Error fetching steps:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+    
+
+}
+
+// 6.get user tasks
+
+async function getUserTasks(req, res) {
+    try {
+    const user_id = req.params.id;
+    const query = `
+        SELECT
+        tasks.id as task_id,
+        tasks.title,
+        tasks.description
+        FROM
+        user_tasks
+        JOIN
+        tasks ON user_tasks.task_id = tasks.id
+        WHERE
+        user_tasks.user_id = :user_id;
+    `;
+
+    const [rows] = await sequelize.query(query, {
+        type: sequelize.QueryTypes.SELECT,
+        replacements: { user_id: user_id },
+    });
+
+    res.status(200).json(rows);
+    console.log(rows);
+    } catch (error) {
+    console.error('Error fetching user tasks:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
 
 
 module.exports = {
@@ -131,5 +185,6 @@ module.exports = {
     getAllTasks,
     deleteTask,
     addStep,
-
+    getTaskSteps,
+    getUserTasks,
 }
