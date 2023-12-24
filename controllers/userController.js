@@ -223,6 +223,32 @@ const addFriend = async (req, res) => {
     }
 }
 
+// 8.search user with number
+
+// 3. get single user
+
+const getUserByNumber = async (req, res) => {
+
+    try {
+        const phoneNum = req.params.phoneNum;
+        const query = 'SELECT id,email,fullName,phoneNum FROM users WHERE phoneNum = :phoneNum';
+        const user = await sequelize.query(query, {
+            type: sequelize.QueryTypes.SELECT,
+            replacements: { phoneNum: phoneNum },
+        });
+
+        if (user.length === 0) {
+            res.status(404).send('User not found');
+        } else {
+            res.status(200).send(user[0]);
+        }
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+}
+
 module.exports = {
     addUser,
     getAllUsers,
@@ -231,4 +257,5 @@ module.exports = {
     deleteUser,
     signIn,
     addFriend,
+    getUserByNumber,
 }

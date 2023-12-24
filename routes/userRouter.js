@@ -33,4 +33,7 @@ router.put('/:id', userController.updateUser)
 
 router.delete('/:id', userController.deleteUser)
 
+// number
+router.get('/searchUser/:phoneNum', userController.getUserByNumber)
+
 module.exports = router
