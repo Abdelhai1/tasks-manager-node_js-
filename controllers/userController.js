@@ -237,7 +237,6 @@ const addFriend = async (req, res) => {
     }
 }
 
-
 // 8.search user with number
 
 // 3. get single user
@@ -265,6 +264,45 @@ const getUserByNumber = async (req, res) => {
 
 }
 
+// 8.get user friends
+const getFriends = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        // Decode the token and check if it's valid
+        const decodedToken = jwt.decode(token);
+
+        if (!decodedToken || !decodedToken.id) {
+            return res.status(400).send('Invalid token or missing user ID');
+        }
+
+        const member_id = decodedToken.id
+
+        const query = `
+        SELECT users.id, users.fullName, users.email
+        FROM friends
+        JOIN users ON friends.friend_id = users.id OR friends.member_id = users.id
+        WHERE friends.member_id = :member_id OR friends.friend_id = :member_id
+        `;
+
+        const friends = await sequelize.query(query, {
+            replacements: { member_id },
+            type: sequelize.QueryTypes.SELECT,
+        });
+        const friendsArray = friends.map(friend => ({
+            id: friend.id,
+            username: friend.username,
+            email: friend.email,
+        }));
+        const result = {friends:friendsArray}
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.error('Error fetching friends:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
 module.exports = {
     addUser,
     getAllUsers,
@@ -274,4 +312,5 @@ module.exports = {
     signIn,
     addFriend,
     getUserByNumber,
+    getFriends,
 }
