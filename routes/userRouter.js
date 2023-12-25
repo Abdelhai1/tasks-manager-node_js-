@@ -13,6 +13,7 @@ router.get('/allUsers', userController.getAllUsers)
 
 router.post('/addfriend',userController.addFriend)
 
+router.get('/getFriends', userController.getFriends)
 
 
 // task Url and Controller
