@@ -1,6 +1,8 @@
 const db = require('../models')
+const jwt = require('jsonwebtoken');
 
-const jwt = require('jsonwebtoken')
+
+
 
 // create main Model
 const User = db.users
@@ -64,8 +66,9 @@ const getAllUsers = async (req, res) => {
         const query = 'SELECT * FROM users';
         const users = await sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
 
-        res.status(200).send(users);
-        console.log(users)
+        const response = { users: users }; // Wrap users array under the "users" key
+        res.status(200).json(response);
+        console.log(response);
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).send('Internal Server Error');
@@ -171,57 +174,69 @@ const deleteUser = async (req, res) => {
 
 
 const signIn = async (req, res) => {
-
     try {
-        const {email,password} = req.body
+        const { email, password } = req.body;
         const query = 'SELECT * FROM users WHERE email = :email';
-        const user = await sequelize.query(query, {
-            type: sequelize.QueryTypes.SELECT,
+        const [user] = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
             replacements: { email: email },
         });
 
-        if (user.length === 0) {
-            res.status(404).send('User does not exist!');
-        } else {
-            const isMatch = bcryptjs.compare(password,user.password)
-            if(!isMatch){
-                return res.status(404).json({msg :'incorrect password!'});
-            }
-            const token = jwt.sign({id:user.id}, "passwordKey")
-            res.json({token , ...user._doc})
-            
+        if (!user) {
+            return res.status(404).send('User does not exist!');
         }
+
+        const isMatch = await bcryptjs.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(404).json({ msg: 'Incorrect password!' });
+        }
+
+        const token = jwt.sign({ id: user.id }, 'passwordKey');
+        res.json({ token, ...user });
+
     } catch (error) {
         console.error('Error fetching user:', error);
         res.status(500).send('Internal Server Error');
     }
+};
 
-}
 
 
 // 7.add friend
 
 const addFriend = async (req, res) => {
     try {
-        const {token,friend_id} = req.body;
-        const member_id = jwt.decode(token).id;
+        const { token, friend_id } = req.body;
+
+        // Decode the token and check if it's valid
+        const decodedToken = jwt.decode(token);
+
+        if (!decodedToken || !decodedToken.id) {
+            return res.status(400).send('Invalid token or missing user ID');
+        }
+
+        const member_id = decodedToken.id;
+
         const query = `
-        INSERT INTO friends (member_id, friend_id,createdAt, updatedAt)
-        VALUES (?,?, NOW(), NOW())
+        INSERT INTO friends (member_id, friend_id, createdAt, updatedAt)
+        VALUES (?, ?, NOW(), NOW())
         `;
-        
+
         const [friends, __] = await sequelize.query(query, {
-            replacements: [member_id,friend_id],
+            replacements: [member_id, friend_id],
             type: sequelize.QueryTypes.INSERT,
             raw: true,
         });
-            res.status(200).send('Friend added successfully');
-        
+
+        res.status(200).send('Friend added successfully');
+
     } catch (error) {
-        console.error('Error updating user:', error);
+        console.error('Error adding friend:', error);
         res.status(500).send('Internal Server Error');
     }
 }
+
 
 // 8.search user with number
 
@@ -240,7 +255,8 @@ const getUserByNumber = async (req, res) => {
         if (user.length === 0) {
             res.status(404).send('User not found');
         } else {
-            res.status(200).send(user[0]);
+            const response = { users: [user[0]] }; // Wrap user object under the "user" key
+            res.status(200).json(response);
         }
     } catch (error) {
         console.error('Error fetching user:', error);
