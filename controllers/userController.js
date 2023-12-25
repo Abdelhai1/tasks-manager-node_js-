@@ -1,6 +1,6 @@
 const db = require('../models')
 
-
+const jwt = require('jsonwebtoken')
 
 // create main Model
 const User = db.users
@@ -203,13 +203,13 @@ const signIn = async (req, res) => {
 
 const addFriend = async (req, res) => {
     try {
-        const {member_id,friend_id} = req.body;
-
+        const {token,friend_id} = req.body;
+        const member_id = jwt.decode(token).id;
         const query = `
         INSERT INTO friends (member_id, friend_id,createdAt, updatedAt)
         VALUES (?,?, NOW(), NOW())
         `;
-
+        
         const [friends, __] = await sequelize.query(query, {
             replacements: [member_id,friend_id],
             type: sequelize.QueryTypes.INSERT,

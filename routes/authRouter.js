@@ -5,5 +5,5 @@ module.exports = authRouter;
 
 //sign up
 authRouter.post('/signup',userController.addUser)
-
+authRouter.post('/signIn',userController.signIn)
 module.exports = authRouter;
