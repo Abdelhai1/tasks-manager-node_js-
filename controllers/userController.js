@@ -21,7 +21,7 @@ const bcryptjs = require('bcryptjs')
 
 const addUser = async (req, res) => {
     try {
-        const { email, password, fullName} = req.body;
+        const { email, password, fullName,phoneNum} = req.body;
         const existingUser = await User.findOne({where: {email: email,},})
 
         if(existingUser){
@@ -29,11 +29,11 @@ const addUser = async (req, res) => {
         }
         const hashedPass = await bcryptjs.hash(password,8)
         const query = `
-            INSERT INTO users (email, password, fullName,createdAt, updatedAt)
+            INSERT INTO users (email, password, fullName,phoneNum,createdAt, updatedAt)
             VALUES (:email, :password, :fullName, NOW(), NOW())
         `;
         
-        const values = { email,password: hashedPass, fullName };
+        const values = { email,password: hashedPass, fullName,phoneNum };
 
         // Execute the raw SQL query
         const [user] = await sequelize.query(query, {
