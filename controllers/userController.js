@@ -279,10 +279,11 @@ const getFriends = async (req, res) => {
         const member_id = decodedToken.id
 
         const query = `
-        SELECT users.id, users.fullName, users.email
-        FROM friends
-        JOIN users ON friends.friend_id = users.id OR friends.member_id = users.id
-        WHERE friends.member_id = :member_id OR friends.friend_id = :member_id
+        SELECT *
+        FROM friends JOIN users
+        ON friends.friend_id = users.id OR friends.member_id = users.id
+        WHERE (friends.member_id = :member_id OR friends.friend_id = :member_id)
+        AND users.id !=  :member_id
         `;
 
         const friends = await sequelize.query(query, {
@@ -291,8 +292,9 @@ const getFriends = async (req, res) => {
         });
         const friendsArray = friends.map(friend => ({
             id: friend.id,
-            username: friend.username,
+            fullName: friend.fullName,
             email: friend.email,
+            
         }));
         const result = {friends:friendsArray}
         res.status(200).json(result);
