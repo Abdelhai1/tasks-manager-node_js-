@@ -103,9 +103,15 @@ const getOneUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const id = req.params.id;
+        const token = req.params.token;
         const updatedData = req.body;
 
+        // Decode the token to get the user ID
+        const decodedToken = jwt.decode(token);
+        if (!decodedToken || !decodedToken.id) {
+            return res.status(400).send('Invalid token or missing user ID');
+        }
+        const id = decodedToken.id;
         const query = `
             UPDATE users
             SET phoneNum = ? , updatedAt = NOW()
@@ -134,7 +140,14 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
 
     try {
-        const id = req.params.id;
+        const token = req.params.token;
+
+        // Decode the token to get the user ID
+        const decodedToken = jwt.decode(token);
+        if (!decodedToken || !decodedToken.id) {
+            return res.status(400).send('Invalid token or missing user ID');
+        }
+        const id = decodedToken.id;
 
         // Delete tasks associated with the user
         const deleteTasksQuery = 'DELETE FROM tasks WHERE creator_id = ?';
@@ -239,7 +252,6 @@ const addFriend = async (req, res) => {
 
 // 8.search user with number
 
-// 3. get single user
 
 const getUserByNumber = async (req, res) => {
 

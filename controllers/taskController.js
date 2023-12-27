@@ -15,9 +15,16 @@ const addTask = async (req, res) => {
 
     try {
 
-        const { creator_id, title, description, dueDate, members } = req.body;
+        const { token, title, description, dueDate, members } = req.body;
 
         // mqdrtsh njib id direct b3d l query aya drt bhadi predefined qdrt njib id b3dha
+
+        // Decode the token to get the user ID
+        const decodedToken = jwt.decode(token);
+        if (!decodedToken || !decodedToken.id) {
+            return res.status(400).send('Invalid token or missing user ID');
+        }
+        const creator_id = decodedToken.id;
         const task = await Task.create({
             creator_id,
             title,
@@ -157,30 +164,38 @@ const getTaskSteps = async (req, res) => {
 
 async function getUserTasks(req, res) {
     try {
-    const user_id = req.params.id;
-    const query = `
-        SELECT
-        tasks.id as task_id,
-        tasks.title,
-        tasks.description
-        FROM
-        user_tasks
-        JOIN
-        tasks ON user_tasks.task_id = tasks.id
-        WHERE
-        user_tasks.user_id = :user_id;
-    `;
+        const token = req.params.token;
 
-    const [rows] = await sequelize.query(query, {
-        type: sequelize.QueryTypes.SELECT,
-        replacements: { user_id: user_id },
-    });
+        // Decode the token to get the user ID
+        const decodedToken = jwt.decode(token);
+        if (!decodedToken || !decodedToken.id) {
+            return res.status(400).send('Invalid token or missing user ID');
+        }
+        const user_id = decodedToken.id;
 
-    res.status(200).json(rows);
-    console.log(rows);
+        const query = `
+            SELECT
+            tasks.id as task_id,
+            tasks.title,
+            tasks.description
+            FROM
+            user_tasks
+            JOIN
+            tasks ON user_tasks.task_id = tasks.id
+            WHERE
+            user_tasks.user_id = :user_id;
+        `;
+
+        const [rows] = await sequelize.query(query, {
+            type: sequelize.QueryTypes.SELECT,
+            replacements: { user_id: user_id },
+        });
+
+        res.status(200).json(rows);
+        console.log(rows);
     } catch (error) {
-    console.error('Error fetching user tasks:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error fetching user tasks:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 }
 
