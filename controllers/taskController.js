@@ -72,7 +72,12 @@ const deleteTask = async (req, res) => {
 
     try {
         const id = req.params.id;
-
+        // Delete steps associated with the task
+        const deleteStepsQuery = 'DELETE FROM steps WHERE task_id = ?';
+        await sequelize.query(deleteStepsQuery, {
+            replacements: [id],
+            type: sequelize.QueryTypes.DELETE,
+        });
         // Delete relation between users associated with the task
         const deleteUserTasksQuery = 'DELETE FROM user_tasks WHERE task_id = ?';
         await sequelize.query(deleteUserTasksQuery, {
@@ -179,6 +184,57 @@ async function getUserTasks(req, res) {
     }
 }
 
+// 7. delete step by id
+
+const deleteStep = async (req, res) => {
+
+    try {
+        const id = req.params.id;
+        //Step
+        const query = 'DELETE FROM steps WHERE id = ?';
+        const rowsDeleted = await sequelize.query(query, {
+            replacements: [id],
+            type: sequelize.QueryTypes.DELETE,
+        });
+
+        
+
+        if (rowsDeleted === 0) {
+            res.status(404).send('Step not found');
+        } else {
+            res.status(200).send('Step is deleted!');
+        }
+    } catch (error) {
+        console.error('Error deleting Step:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+// 7. delete step by id
+
+const getNUmberOfDoneSteps = async (req, res) => {
+
+    try {
+        const id = req.params.id;
+        //Step
+        const query = 'SELECT COUNT(*) as number FROM steps WHERE task_id = ? AND status = "done"';
+        const number = await sequelize.query(query, {
+            replacements: [id],
+            type: sequelize.QueryTypes.SELECT,
+        });
+
+        
+
+        if (number === 0) {
+            res.status(404).send('Step not found');
+        } else {
+            res.status(200).json(number);
+        }
+    } catch (error) {
+        console.error('Error getting number of done Steps:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
 
 module.exports = {
     addTask,
@@ -187,4 +243,7 @@ module.exports = {
     addStep,
     getTaskSteps,
     getUserTasks,
+    deleteStep,
+    getNUmberOfDoneSteps,
+
 }
