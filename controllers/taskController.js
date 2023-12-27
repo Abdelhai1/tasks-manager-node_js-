@@ -15,7 +15,7 @@ const addTask = async (req, res) => {
 
     try {
 
-        const { token, title, description, dueDate, members } = req.body;
+        const { token, title, description,status, dueDate, members } = req.body;
 
         // mqdrtsh njib id direct b3d l query aya drt bhadi predefined qdrt njib id b3dha
 
@@ -29,6 +29,7 @@ const addTask = async (req, res) => {
             creator_id,
             title,
             description,
+            status,
             dueDate,
         });
         const taskId =task.id;
@@ -36,14 +37,14 @@ const addTask = async (req, res) => {
             INSERT INTO user_tasks (user_id,task_id,createdAt,updatedAt)
             VALUES (?,?,NOW(),NOW())
         `;
-
+        
         for (let index = 0; index < members.length; index++) {
             const member_id = members[index];
             const [userTask] = await sequelize.query(insertTaskMemberQuery, {
                 replacements: [member_id,taskId],
                 type: QueryTypes.INSERT,
             });
-            //res.status(200).send({userTask})
+            res.status(200).send({userTask})
         }
 
 
@@ -251,6 +252,37 @@ const getNUmberOfDoneSteps = async (req, res) => {
     }
 }
 
+// 8. update task
+
+
+const updateTask = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const updatedData = req.body;
+
+        const query = `
+            UPDATE tasks
+            SET title = ?, status = ?, description = ?, dueDate = ? , updatedAt = NOW()
+            WHERE id = ?
+        `;
+
+        const [rowsUpdated, _] = await sequelize.query(query, {
+            replacements: [updatedData.title, updatedData.status, updatedData.description, updatedData.dueDate, id],
+            type: sequelize.QueryTypes.UPDATE,
+            returning: true,
+        });
+
+        if (rowsUpdated === 0) {
+            res.status(404).send('task not found');
+        } else {
+            res.status(200).send('task updated successfully');
+        }
+    } catch (error) {
+        console.error('Error updating task:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
 module.exports = {
     addTask,
     getAllTasks,
@@ -260,5 +292,6 @@ module.exports = {
     getUserTasks,
     deleteStep,
     getNUmberOfDoneSteps,
+    updateTask,
 
 }

@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
         dueDate: {
             type: DataTypes.STRING
         },
+        status: {
+            type: DataTypes.STRING
+        },
         creator_id: {
             type: DataTypes.INTEGER,
             references:{

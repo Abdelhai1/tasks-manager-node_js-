@@ -9,6 +9,7 @@ router.post('/addTask',  taskController.addTask)
 router.get('/allTasks', taskController.getAllTasks)
 router.get('/getUserTasks/:id', taskController.getUserTasks)
 router.delete('/deleteTask/:id', taskController.deleteTask)
+router.put('/:id', taskController.updateTask)
 //steps
 router.post('/addStep',  taskController.addStep)
 
