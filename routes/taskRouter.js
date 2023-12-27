@@ -17,7 +17,7 @@ router.delete('/deleteStep/:id', taskController.deleteStep)
 
 router.get('/getTaskSteps/:id', taskController.getTaskSteps)
 router.get('/getNUmberOfDoneSteps/:id', taskController.getNUmberOfDoneSteps)
-
+router.get('/getStepsNumber/:id', taskController.getStepsNumber)
 router.get('/getTaskSteps/:id', taskController.getTaskSteps)
 
 module.exports = router

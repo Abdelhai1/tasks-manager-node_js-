@@ -226,7 +226,7 @@ const deleteStep = async (req, res) => {
     }
 }
 
-// 7. delete step by id
+// 8. number of done steps
 
 const getNUmberOfDoneSteps = async (req, res) => {
 
@@ -252,7 +252,7 @@ const getNUmberOfDoneSteps = async (req, res) => {
     }
 }
 
-// 8. update task
+// 9. update task
 
 
 const updateTask = async (req, res) => {
@@ -283,6 +283,31 @@ const updateTask = async (req, res) => {
     }
 }
 
+// 10. getStepsNumber
+
+const getStepsNumber = async (req, res) => {
+
+    try {
+        const id = req.params.id;
+        //Step
+        const query = 'SELECT COUNT(*) as number FROM steps WHERE task_id = ? ';
+        const number = await sequelize.query(query, {
+            replacements: [id],
+            type: sequelize.QueryTypes.SELECT,
+        });
+
+        
+
+        if (number === 0) {
+            res.status(404).send('Steps not found');
+        } else {
+            res.status(200).json(number);
+        }
+    } catch (error) {
+        console.error('Error getting number of done Steps:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
 module.exports = {
     addTask,
     getAllTasks,
@@ -293,5 +318,5 @@ module.exports = {
     deleteStep,
     getNUmberOfDoneSteps,
     updateTask,
-
+    getStepsNumber,
 }
