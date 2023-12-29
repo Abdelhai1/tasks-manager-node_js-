@@ -184,7 +184,7 @@ async function getUserTasks(req, res) {
             JOIN
             tasks ON user_tasks.task_id = tasks.id
             WHERE
-            user_tasks.user_id = ?;
+            user_tasks.user_id = :uid;
         `;
 
         const [rows] = await sequelize.query(query, {
