@@ -7,7 +7,7 @@ const router = require('express').Router()
 // use routers
 router.post('/addTask',  taskController.addTask)
 router.get('/allTasks', taskController.getAllTasks)
-router.get('/getUserTasks/', taskController.getUserTasks)
+router.get('/getUserTasks/:token', taskController.getUserTasks)
 router.delete('/deleteTask/:id', taskController.deleteTask)
 router.put('/:id', taskController.updateTask)
 //steps

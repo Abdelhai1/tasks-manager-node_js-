@@ -44,7 +44,7 @@ const addTask = async (req, res) => {
                 replacements: [member_id,taskId],
                 type: QueryTypes.INSERT,
             });
-            res.status(200).send({userTask})
+            //res.status(200).send({userTask})
         }
 
 
@@ -165,20 +165,14 @@ const getTaskSteps = async (req, res) => {
 
 async function getUserTasks(req, res) {
     try {
-        // Extract the token from the Authorization header
-        const authHeader = req.headers['authorization'];
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).send('Unauthorized: Missing or invalid token');
-        }
-
-        const token = authHeader.substring('Bearer '.length);
+        const token = req.params.token;
 
         // Decode the token to get the user ID
         const decodedToken = jwt.decode(token);
         if (!decodedToken || !decodedToken.id) {
             return res.status(400).send('Invalid token or missing user ID');
         }
-        const user_id = decodedToken.id;
+        const uid = decodedToken.id;
 
         const query = `
             SELECT
@@ -190,12 +184,12 @@ async function getUserTasks(req, res) {
             JOIN
             tasks ON user_tasks.task_id = tasks.id
             WHERE
-            user_tasks.user_id = :user_id;
+            user_tasks.user_id = ?;
         `;
 
         const [rows] = await sequelize.query(query, {
             type: sequelize.QueryTypes.SELECT,
-            replacements: { user_id: user_id },
+            replacements: { uid },
         });
 
         res.status(200).json(rows);
