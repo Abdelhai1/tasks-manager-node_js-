@@ -37,7 +37,10 @@ const addTask = async (req, res) => {
             INSERT INTO user_tasks (user_id,task_id,createdAt,updatedAt)
             VALUES (?,?,NOW(),NOW())
         `;
-        
+        const [userTask] = await sequelize.query(insertTaskMemberQuery, {
+            replacements: [creator_id,taskId],
+            type: QueryTypes.INSERT,
+        });
         for (let index = 0; index < members.length; index++) {
             const member_id = members[index];
             const [userTask] = await sequelize.query(insertTaskMemberQuery, {
@@ -184,7 +187,8 @@ async function getUserTasks(req, res) {
             JOIN
             tasks ON user_tasks.task_id = tasks.id
             WHERE
-            user_tasks.user_id = :uid;
+            user_tasks.user_id = :u
+            id;
         `;
 
         const [rows] = await sequelize.query(query, {
