@@ -165,7 +165,13 @@ const getTaskSteps = async (req, res) => {
 
 async function getUserTasks(req, res) {
     try {
-        const token = req.params.token;
+        // Extract the token from the Authorization header
+        const authHeader = req.headers['authorization'];
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).send('Unauthorized: Missing or invalid token');
+        }
+
+        const token = authHeader.substring('Bearer '.length);
 
         // Decode the token to get the user ID
         const decodedToken = jwt.decode(token);
