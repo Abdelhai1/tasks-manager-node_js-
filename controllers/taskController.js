@@ -1,4 +1,5 @@
 const db = require('../models')
+const jwt = require('jsonwebtoken');
 
 // model
 const User = db.users
@@ -170,7 +171,6 @@ async function getUserTasks(req, res) {
     try {
         const token = req.params.token;
 
-        // Decode the token to get the user ID
         const decodedToken = jwt.decode(token);
         if (!decodedToken || !decodedToken.id) {
             return res.status(400).send('Invalid token or missing user ID');
@@ -179,30 +179,33 @@ async function getUserTasks(req, res) {
 
         const query = `
             SELECT
-            tasks.id as task_id,
-            tasks.title,
-            tasks.description
+                tasks.id as task_id,
+                tasks.title,
+                tasks.description,
+                tasks.dueDate
             FROM
-            user_tasks
+                user_tasks
             JOIN
-            tasks ON user_tasks.task_id = tasks.id
+                tasks ON user_tasks.task_id = tasks.id
             WHERE
-            user_tasks.user_id = :u
-            id;
+                user_tasks.user_id = :uid;
         `;
 
-        const [rows] = await sequelize.query(query, {
+        const rows = await sequelize.query(query, {
             type: sequelize.QueryTypes.SELECT,
             replacements: { uid },
         });
 
-        res.status(200).json(rows);
-        console.log(rows);
+        const formattedResponse = { UserTask: rows }; 
+
+        res.status(200).json(formattedResponse);
+        console.log(formattedResponse);
     } catch (error) {
         console.error('Error fetching user tasks:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+
 
 // 7. delete step by id
 
