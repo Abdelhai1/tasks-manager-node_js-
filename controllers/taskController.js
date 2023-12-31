@@ -124,7 +124,7 @@ const deleteTask = async (req, res) => {
 const addStep = async (req, res) => {
 
     try {
-        const {title, status, description,taskId } = req.body;
+        const {title, status, description,task_id } = req.body;
 
         const insertStepQuery = `
             INSERT INTO Steps (title, status,description,task_id,createdAt,updatedAt)
@@ -132,7 +132,7 @@ const addStep = async (req, res) => {
         `;
 
         const [Step, _] = await sequelize.query(insertStepQuery, {
-            replacements: [title, status, description,taskId],
+            replacements: [title, status, description,task_id],
             type: sequelize.QueryTypes.INSERT,
         });
 
@@ -253,8 +253,9 @@ const getNUmberOfDoneSteps = async (req, res) => {
         if (number === 0) {
             res.status(404).send('Step not found');
         } else {
-            res.status(200).json(number);
-        }
+            res.status(200).json({number});
+            console.log({number});
+                }
     } catch (error) {
         console.error('Error getting number of done Steps:', error);
         res.status(500).send('Internal Server Error');
@@ -310,7 +311,9 @@ const getStepsNumber = async (req, res) => {
         if (number === 0) {
             res.status(404).send('Steps not found');
         } else {
-            res.status(200).json(number);
+            res.status(200).json({number});
+            console.log({number});
+
         }
     } catch (error) {
         console.error('Error getting number of done Steps:', error);
