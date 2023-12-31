@@ -52,7 +52,9 @@ const addTask = async (req, res) => {
         }
 
 
-        res.status(200).json({task})
+        res.status(200).json({ task: [task.dataValues] });
+        console.log({ task: [task.dataValues] });
+
     } catch (error) {
         console.error('Error adding task:', error);
         res.status(500).send('Internal Server Error');
@@ -183,7 +185,7 @@ async function getUserTasks(req, res) {
                 tasks.title,
                 tasks.description,
                 tasks.dueDate
-            FROMh
+            FROM
                 user_tasks
             JOIN
                 tasks ON user_tasks.task_id = tasks.id
