@@ -20,7 +20,7 @@ const addTask = async (req, res) => {
 
         // mqdrtsh njib id direct b3d l query aya drt bhadi predefined qdrt njib id b3dha
 
-        // Decode the token to get the user ID
+        //Decode the token to get the user ID
         const decodedToken = jwt.decode(token);
         if (!decodedToken || !decodedToken.id) {
             return res.status(400).send('Invalid token or missing user ID');
@@ -320,6 +320,30 @@ const getStepsNumber = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 }
+
+// 11. get single task
+
+const getOneTask = async (req, res) => {
+
+    try {
+        const id = req.params.id;
+        const query = 'SELECT * FROM tasks WHERE id = :id';
+        const task = await sequelize.query(query, {
+            type: sequelize.QueryTypes.SELECT,
+            replacements: { id: id },
+        });
+
+        if (task.length === 0) {
+            res.status(404).send('Task not found');
+        } else {
+            res.status(200).json({task});
+        }
+    } catch (error) {
+        console.error('Error fetching task:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+}
 module.exports = {
     addTask,
     getAllTasks,
@@ -331,4 +355,5 @@ module.exports = {
     getNUmberOfDoneSteps,
     updateTask,
     getStepsNumber,
+    getOneTask
 }
