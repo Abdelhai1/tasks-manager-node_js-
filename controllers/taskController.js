@@ -35,8 +35,8 @@ const addTask = async (req, res) => {
         });
         const taskId =task.id;
         const insertTaskMemberQuery = `
-            INSERT INTO user_tasks (user_id,task_id,createdAt,updatedAt)
-            VALUES (?,?,NOW(),NOW())
+            INSERT INTO user_tasks (user_id,task_id,status,createdAt,updatedAt)
+            VALUES (?,?,"In Progress",NOW(),NOW())
         `;
         const [userTask] = await sequelize.query(insertTaskMemberQuery, {
             replacements: [creator_id,taskId],
@@ -124,15 +124,15 @@ const deleteTask = async (req, res) => {
 const addStep = async (req, res) => {
 
     try {
-        const {title, status, description,task_id } = req.body;
+        const {title, status, description,stepNumber,task_id } = req.body;
 
         const insertStepQuery = `
-            INSERT INTO Steps (title, status,description,task_id,createdAt,updatedAt)
-            VALUES (?, ?, ?,?,NOW(),NOW())
+            INSERT INTO Steps (title, status,description,stepNumber,task_id,createdAt,updatedAt)
+            VALUES (?, ?, ?,?,?,NOW(),NOW())
         `;
 
         const [Step, _] = await sequelize.query(insertStepQuery, {
-            replacements: [title, status, description,task_id],
+            replacements: [title, status, description,stepNumber,task_id],
             type: sequelize.QueryTypes.INSERT,
         });
 
@@ -150,14 +150,14 @@ const getTaskSteps = async (req, res) => {
 
     try {
         const task_id = req.params.id
-        const query = 'SELECT * FROM steps where task_id=:task_id';
+        const query = 'SELECT id as stepId,title,description,stepNumber,status FROM steps where task_id=:task_id';
         const steps = await sequelize.query(query, {
             type: sequelize.QueryTypes.SELECT,
             replacements: { task_id: task_id },
         });
-
-        res.status(200).send(steps);
-        console.log(steps)
+        const formattedResponse = { steps: steps }; 
+        res.status(200).send(formattedResponse);
+        console.log(formattedResponse)
     } catch (error) {
         console.error('Error fetching steps:', error);
         res.status(500).send('Internal Server Error');
@@ -221,8 +221,6 @@ const deleteStep = async (req, res) => {
             replacements: [id],
             type: sequelize.QueryTypes.DELETE,
         });
-
-        
 
         if (rowsDeleted === 0) {
             res.status(404).send('Step not found');
@@ -327,16 +325,18 @@ const getOneTask = async (req, res) => {
 
     try {
         const id = req.params.id;
-        const query = 'SELECT * FROM tasks WHERE id = :id';
-        const task = await sequelize.query(query, {
+        const query = 'SELECT id as task_id,title,description,dueDate FROM tasks WHERE id = :id';
+        const UserTask = await sequelize.query(query, {
             type: sequelize.QueryTypes.SELECT,
             replacements: { id: id },
         });
 
-        if (task.length === 0) {
+        if (UserTask.length === 0) {
             res.status(404).send('Task not found');
         } else {
-            res.status(200).json({task});
+            res.status(200).json({UserTask});
+            console.log({UserTask});
+
         }
     } catch (error) {
         console.error('Error fetching task:', error);
