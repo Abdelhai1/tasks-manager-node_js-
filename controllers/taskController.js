@@ -344,6 +344,36 @@ const getOneTask = async (req, res) => {
     }
 
 }
+
+// 4. update Step
+
+const updateStep = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const updatedData = req.body;
+
+        const query = `
+            UPDATE steps
+            SET title = ?, status = ?, description = ?, stepNumber = ? , updatedAt = NOW()
+            WHERE id = ?
+        `;
+
+        const [rowsUpdated, _] = await sequelize.query(query, {
+            replacements: [updatedData.title, updatedData.status, updatedData.description, updatedData.stepNumber, id],
+            type: sequelize.QueryTypes.UPDATE,
+            returning: true,
+        });
+
+        if (rowsUpdated === 0) {
+            res.status(404).send('Step not found');
+        } else {
+            res.status(200).send('Step updated successfully');
+        }
+    } catch (error) {
+        console.error('Error updating Step:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
 module.exports = {
     addTask,
     getAllTasks,
@@ -355,5 +385,6 @@ module.exports = {
     getNUmberOfDoneSteps,
     updateTask,
     getStepsNumber,
-    getOneTask
+    getOneTask,
+    updateStep
 }
