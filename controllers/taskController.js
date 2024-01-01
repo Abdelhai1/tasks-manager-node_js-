@@ -150,14 +150,14 @@ const getTaskSteps = async (req, res) => {
 
     try {
         const task_id = req.params.id
-        const query = 'SELECT * FROM steps where task_id=:task_id';
+        const query = 'SELECT id as stepId,title,description,status FROM steps where task_id=:task_id';
         const steps = await sequelize.query(query, {
             type: sequelize.QueryTypes.SELECT,
             replacements: { task_id: task_id },
         });
-
-        res.status(200).send(steps);
-        console.log(steps)
+        const formattedResponse = { steps: steps }; 
+        res.status(200).send(formattedResponse);
+        console.log(formattedResponse)
     } catch (error) {
         console.error('Error fetching steps:', error);
         res.status(500).send('Internal Server Error');
@@ -327,16 +327,18 @@ const getOneTask = async (req, res) => {
 
     try {
         const id = req.params.id;
-        const query = 'SELECT * FROM tasks WHERE id = :id';
-        const task = await sequelize.query(query, {
+        const query = 'SELECT id as task_id,title,description,dueDate FROM tasks WHERE id = :id';
+        const UserTask = await sequelize.query(query, {
             type: sequelize.QueryTypes.SELECT,
             replacements: { id: id },
         });
 
-        if (task.length === 0) {
+        if (UserTask.length === 0) {
             res.status(404).send('Task not found');
         } else {
-            res.status(200).json({task});
+            res.status(200).json({UserTask});
+            console.log({UserTask});
+
         }
     } catch (error) {
         console.error('Error fetching task:', error);
