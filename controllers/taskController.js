@@ -35,8 +35,8 @@ const addTask = async (req, res) => {
         });
         const taskId =task.id;
         const insertTaskMemberQuery = `
-            INSERT INTO user_tasks (user_id,task_id,status,createdAt,updatedAt)
-            VALUES (?,?,"In Progress",NOW(),NOW())
+            INSERT INTO user_tasks (user_id,task_id,createdAt,updatedAt)
+            VALUES (?,?,NOW(),NOW())
         `;
         const [userTask] = await sequelize.query(insertTaskMemberQuery, {
             replacements: [creator_id,taskId],
@@ -184,7 +184,8 @@ async function getUserTasks(req, res) {
                 tasks.id as task_id,
                 tasks.title,
                 tasks.description,
-                tasks.dueDate
+                tasks.dueDate,
+                tasks.status
             FROM
                 user_tasks
             JOIN
@@ -354,12 +355,12 @@ const updateStep = async (req, res) => {
 
         const query = `
             UPDATE steps
-            SET title = ?, status = ?, description = ?, stepNumber = ? , updatedAt = NOW()
+            SET title = ?, status = ?, description = ?, updatedAt = NOW()
             WHERE id = ?
         `;
 
         const [rowsUpdated, _] = await sequelize.query(query, {
-            replacements: [updatedData.title, updatedData.status, updatedData.description, updatedData.stepNumber, id],
+            replacements: [updatedData.title, updatedData.status, updatedData.description, id],
             type: sequelize.QueryTypes.UPDATE,
             returning: true,
         });

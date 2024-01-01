@@ -13,7 +13,7 @@ router.delete('/deleteTask/:id', taskController.deleteTask)
 router.put('/updateTask/:id', taskController.updateTask)
 //steps
 router.post('/addStep',  taskController.addStep)
-router.put('/:id', taskController.updateStep)
+router.put('/updateStep/:id', taskController.updateStep)
 router.delete('/deleteStep/:id', taskController.deleteStep)
 
 router.get('/getTaskSteps/:id', taskController.getTaskSteps)
