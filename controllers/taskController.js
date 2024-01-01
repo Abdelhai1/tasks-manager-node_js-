@@ -35,8 +35,8 @@ const addTask = async (req, res) => {
         });
         const taskId =task.id;
         const insertTaskMemberQuery = `
-            INSERT INTO user_tasks (user_id,task_id,createdAt,updatedAt)
-            VALUES (?,?,NOW(),NOW())
+            INSERT INTO user_tasks (user_id,task_id,status,createdAt,updatedAt)
+            VALUES (?,?,"In Progress",NOW(),NOW())
         `;
         const [userTask] = await sequelize.query(insertTaskMemberQuery, {
             replacements: [creator_id,taskId],
@@ -124,15 +124,15 @@ const deleteTask = async (req, res) => {
 const addStep = async (req, res) => {
 
     try {
-        const {title, status, description,task_id } = req.body;
+        const {title, status, description,stepNumber,task_id } = req.body;
 
         const insertStepQuery = `
-            INSERT INTO Steps (title, status,description,task_id,createdAt,updatedAt)
-            VALUES (?, ?, ?,?,NOW(),NOW())
+            INSERT INTO Steps (title, status,description,stepNumber,task_id,createdAt,updatedAt)
+            VALUES (?, ?, ?,?,?,NOW(),NOW())
         `;
 
         const [Step, _] = await sequelize.query(insertStepQuery, {
-            replacements: [title, status, description,task_id],
+            replacements: [title, status, description,stepNumber,task_id],
             type: sequelize.QueryTypes.INSERT,
         });
 
@@ -150,7 +150,7 @@ const getTaskSteps = async (req, res) => {
 
     try {
         const task_id = req.params.id
-        const query = 'SELECT id as stepId,title,description,status FROM steps where task_id=:task_id';
+        const query = 'SELECT id as stepId,title,description,stepNumber,status FROM steps where task_id=:task_id';
         const steps = await sequelize.query(query, {
             type: sequelize.QueryTypes.SELECT,
             replacements: { task_id: task_id },
@@ -221,8 +221,6 @@ const deleteStep = async (req, res) => {
             replacements: [id],
             type: sequelize.QueryTypes.DELETE,
         });
-
-        
 
         if (rowsDeleted === 0) {
             res.status(404).send('Step not found');
