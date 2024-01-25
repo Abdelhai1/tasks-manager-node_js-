@@ -33,6 +33,7 @@ const addTask = async (req, res) => {
             status,
             dueDate,
         });
+
         const taskId =task.id;
         const insertTaskMemberQuery = `
             INSERT INTO user_tasks (user_id,task_id,createdAt,updatedAt)
@@ -66,7 +67,7 @@ const addTask = async (req, res) => {
 const getAllTasks = async (req, res) => {
 
     try {
-        const query = 'SELECT * FROM tasks';
+        const query = 'SELECT * FROM tasks ORDER BY updatedAt DESC';
         const tasks = await sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
 
         res.status(200).send(tasks);
@@ -190,7 +191,9 @@ async function getUserTasks(req, res) {
             JOIN
                 tasks ON user_tasks.task_id = tasks.id
             WHERE
-                user_tasks.user_id = :uid;
+                user_tasks.user_id = :uid
+                
+            ORDER BY tasks.updatedAt DESC;
         `;
 
         const rows = await sequelize.query(query, {
