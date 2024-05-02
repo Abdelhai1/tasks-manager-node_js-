@@ -28,10 +28,13 @@ router.get('/getProductReviews/:id', productController.getProductReviews)
 
 
 // Products router
+//get with id
 router.get('/:id', productController.getOneProduct)
 
+//update with id 
 router.put('/:id', productController.updateProduct)
 
+//delete with id
 router.delete('/:id', productController.deleteProduct)
 
 module.exports = router
