@@ -8,10 +8,13 @@ const router = require('express').Router()
 
 
 // use routers
+//add product
 router.post('/addProduct',  productController.addProduct)
 
+//get all products
 router.get('/allProducts', productController.getAllProducts)
 
+//get only published products
 router.get('/published', productController.getPublishedProduct)
 
 
